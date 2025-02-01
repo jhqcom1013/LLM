@@ -12,6 +12,9 @@ from uuid import uuid4
 from .models import db, ChatMessage
 from langchain.prompts import PromptTemplate
 
+import time
+import datetime
+
 from langchain.prompts import (
     ChatPromptTemplate, 
     MessagesPlaceholder, 
@@ -32,10 +35,12 @@ print("Creating embeddings")
 text_field = "text"
 embeddings = OpenAIEmbeddings(model='text-embedding-ada-002')
 vectorstore = PineconeVectorStore(index, embeddings, text_field)
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 8})
-custormized_prompt = "You are a friendly and helpful chatbot having a conversation with a human.\
+custormized_prompt = "Today data is {date}. You are a friendly and helpful chatbot having a conversation with a human.\
 Your first priority is to retrieve relevant information from the retriever. If the retriever does not provide an answer or\
-the information is insufficient, then generate a response using your own knowledge and reasoning. Keep the conversation engaging, clear, and helpful.."
+the information is insufficient, then generate a response using your own knowledge and reasoning.\
+Keep the conversation engaging, clear, and helpful..".format(date=now)
 prompt = ChatPromptTemplate(
     messages=[
         SystemMessagePromptTemplate.from_template(custormized_prompt),
